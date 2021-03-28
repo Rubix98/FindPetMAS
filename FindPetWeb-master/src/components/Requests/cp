@@ -1,0 +1,26 @@
+  <Map
+                  style="mapbox://styles/mapbox/streets-v11"
+                  containerStyle={{
+                    height: "100vh",
+                    width: "100vw"
+                  }}
+                  center={[location[0], location[1]]}
+                  containerStyle={{ width: 500, height: 400, margin: "auto" }}
+                  onStyleLoad={(map, e) => {
+                    handleMapLoaded(map);
+                  }}
+                >
+                  {/*}onClick={(map, evt) => {
+                  setLocation([evt.lngLat.lat, evt.lngLat.lng]);
+                }}{*/}
+                  {/*}
+                <Marker
+                  coordinates={[
+                    userCircle.longitude || 18.6057,
+                    userCircle.latitude || 53.015331
+                  ]}
+                >
+                  <MapImage src={locationPhoto} />
+                </Marker>
+              {*/}
+                </Map>

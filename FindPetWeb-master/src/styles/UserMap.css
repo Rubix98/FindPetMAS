@@ -1,0 +1,12 @@
+.usermap {
+  width: 400px;
+  height: 250px;
+  margin: auto;
+}
+@media (max-width: 800px) {
+  .usermap {
+    width: 120px;
+    height: 120px;
+    margin: auto;
+  }
+}
