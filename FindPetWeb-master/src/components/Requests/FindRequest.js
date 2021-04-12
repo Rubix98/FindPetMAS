@@ -1,16 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
-import md5 from "md5";
-import * as Yup from "yup";
-import axios from "axios";
-import { Redirect, withRouter } from "react-router-dom";
+import React, { useContext, useState } from "react";
 import { NewAppInfo } from "../../context/AppInfo";
-import { Formik, Form, Field } from "formik";
+import { Formik } from "formik";
 import DateTimePicker from "react-datetime-picker";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import photo from "../../photo.png";
-import locationPhoto from "../../91544.png";
-import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
+import ReactMapboxGl from "react-mapbox-gl";
 import {
   FormContainer,
   LabelContainer,
@@ -19,7 +14,6 @@ import {
   ImagesItem,
   HeaderText,
   Image,
-  MapImage,
   InvisibleInput,
   SelectContainer,
   ContentArea,
@@ -27,11 +21,12 @@ import {
   SendButton,
   ErrorText,
 } from "../../styles/LostRequestStyle";
-import { createGlobalStyle } from "styled-components/macro";
 import * as exifr from "exifr";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import circle from "@turf/circle";
 import { geolocated } from "react-geolocated";
+import formInitialValues from "./formInitialValues";
+import layerMapObject from "./layerMapObject";
+import getDataSource from "./getDataSource";
+import getSource from "./getSource";
 
 const Map = ReactMapboxGl({
   accessToken: "*",
@@ -39,19 +34,11 @@ const Map = ReactMapboxGl({
 const FindRequest = (props) => {
   const userInfo = useContext(NewAppInfo);
   console.log(props);
-  const draw = new MapboxDraw();
   var moment = require("moment");
   //53.015331, 18.6057
   const [location, setLocation] = useState([undefined, undefined]);
-  const [mapLocation, setMapLocation] = useState([undefined, undefined]);
-  const [circle, setCircle] = useState(0.1);
-  const [isReady, setIsReady] = useState(false);
-  const [info, setInfo] = useState({});
   const [files, setFiles] = useState([]);
-  const [data, setData] = useState({});
-  const [isSet, setSet] = useState(false);
   const [mapObj, setMapObj] = useState(false);
-  console.log(data);
   var test;
   const handleLocationFromFile = (myMap, output) => {
     myMap.loadImage(
@@ -78,31 +65,9 @@ const FindRequest = (props) => {
       myMap.removeLayer("points");
     }
 
-    myMap.addSource("point", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              coordinates: [output.longitude, output.latitude],
-            },
-          },
-        ],
-      },
-    });
+    myMap.addSource("point", getSource(output));
 
-    mapObj.addLayer({
-      id: "points",
-      type: "symbol",
-      source: "point",
-      layout: {
-        "icon-image": "cat",
-        "icon-size": 0.05,
-      },
-    });
+    mapObj.addLayer(layerMapObject);
 
     setLocation([...[output.longitude, output.latitude]]);
   };
@@ -146,44 +111,11 @@ const FindRequest = (props) => {
         map.removeLayer("points");
       }
       if (map.getSource("point")) {
-        map.getSource("point").setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [temp.longitude, temp.latitude],
-              },
-            },
-          ],
-        });
+        map.getSource("point").setData(getDataSource(temp));
       } else {
-        map.addSource("point", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  coordinates: [temp.longitude, temp.latitude],
-                },
-              },
-            ],
-          },
-        });
+        map.addSource("point", getDataSource(temp));
       }
-      map.addLayer({
-        id: "points",
-        type: "symbol",
-        source: "point",
-        layout: {
-          "icon-image": "cat",
-          "icon-size": 0.05,
-        },
-      });
+      map.addLayer(layerMapObject);
     });
   };
 
@@ -219,25 +151,14 @@ const FindRequest = (props) => {
   return (
     <div>
       <Formik
-        initialValues={{
-          date: "",
-          took: false,
-          type: "Pies",
-          content: "",
-          size: "Mały",
-          hairColour: "",
-          specialInfo: "",
-          breed: "",
-          prize: 0,
-          image1: photo,
-          image2: photo,
-          image3: photo,
-          image4: photo,
-        }}
+        initialValues={formInitialValues}
         onSubmit={(values) => sendRequest(values)}
         validationSchema={Yup.object().shape({
           date: Yup.date()
-            .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
+            .min(
+              moment().subtract(1, "days").endOf("day").toString(),
+              "Wprowadzona data jest nieprawidłowa!"
+            )
             .max(moment().format(), "Wprowadzona data jest nieprawidłowa!!"),
           type: Yup.string(),
           content: Yup.string()

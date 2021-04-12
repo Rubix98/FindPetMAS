@@ -1,17 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
-import md5 from "md5";
 import * as Yup from "yup";
-import axios from "axios";
-import { Redirect, withRouter } from "react-router-dom";
 import { NewAppInfo } from "../../context/AppInfo";
-import { Formik, Form, Field } from "formik";
+import { Formik } from "formik";
 import DateTimePicker from "react-datetime-picker";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import photo from "../../photo.png";
-import locationPhoto from "../../91544.png";
-import useGeolocation from "react-hook-geolocation";
-import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import ReactMapboxGl from "react-mapbox-gl";
 import {
   FormContainer,
   LabelContainer,
@@ -20,7 +13,6 @@ import {
   ImagesItem,
   HeaderText,
   Image,
-  MapImage,
   InvisibleInput,
   SelectContainer,
   ContentArea,
@@ -28,40 +20,17 @@ import {
   SendButton,
   ErrorText,
 } from "../../styles/LostRequestStyle";
-import { createGlobalStyle } from "styled-components/macro";
-import * as exifr from "exifr";
-import {
-  CircleMode,
-  DragCircleMode,
-  DirectMode,
-  SimpleSelectMode,
-} from "mapbox-gl-draw-circle";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import circle from "@turf/circle";
-import { geolocated } from "react-geolocated";
-const GlobalStyling = createGlobalStyle`
-    .react-datetime-picker__wrapper{
-        width:310px;
-    }
-`;
+import getDrawOptions from "../Posts/getDrawOptions";
+import getDataSource from "./getDataSource";
+import getSource from "./getSource";
+import layerMapObject from "./layerMapObject";
 const Map = ReactMapboxGl({
   accessToken: "*",
 });
 const LostRequest = (props) => {
   const userInfo = useContext(NewAppInfo);
   console.log(props);
-  const draw = new MapboxDraw({
-    defaultMode: "draw_circle",
-    userProperties: true,
-    initialRadiusInKm: 0.1,
-    modes: {
-      ...MapboxDraw.modes,
-      draw_circle: CircleMode,
-      drag_circle: DragCircleMode,
-      direct_select: DirectMode,
-      simple_select: SimpleSelectMode,
-    },
-  });
+  const draw = getDrawOptions();
   var moment = require("moment");
   //53.015331, 18.6057
   const [location, setLocation] = useState([18.598444, 53.01379]);
@@ -71,15 +40,8 @@ const LostRequest = (props) => {
       setLocation([geolocation.longitude, geolocation.latitude]);
     }
   };
-  const geolocation = useGeolocation({}, onGeolocationUpdate);
 
-  const [circle, setCircle] = useState(0.1);
-  const [isReady, setIsReady] = useState(false);
-  const [info, setInfo] = useState({});
   const [files, setFiles] = useState([]);
-  const [data, setData] = useState({});
-
-  console.log(data);
 
   const handleMapLoaded = (map) => {
     map.loadImage(
@@ -104,44 +66,10 @@ const LostRequest = (props) => {
       ]);
       userInfo.setRequest({ ...temp });
       if (map.getSource("point")) {
-        map.getSource("point").setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [temp.longitude, temp.latitude],
-              },
-            },
-          ],
-        });
+        map.getSource("point").setData(getDataSource(temp));
       } else {
-        map.addSource("point", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  //53.015331, 18.6057
-                  coordinates: [temp.longitude, temp.latitude],
-                },
-              },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "points",
-          type: "symbol",
-          source: "point",
-          layout: {
-            "icon-image": "cat",
-            "icon-size": 0.05,
-          },
-        });
+        map.addSource("point", getSource(temp));
+        map.addLayer(layerMapObject);
       }
     };
     map.on("draw.update", (e) => {
@@ -153,14 +81,7 @@ const LostRequest = (props) => {
 
     map.addControl(draw);
     draw.changeMode("draw_circle", { initialRadiusInKm: 0.5 });
-    // map.on("draw.update", e => {});
     console.log(draw.getAll());
-    /*
-    map.on("click", e => {
-      console.log(e);
-      setInfo({ a: "WWW" });
-    });
-  */
   };
   const sendRequest = (e) => {
     let temp = userInfo.request;
@@ -204,7 +125,10 @@ const LostRequest = (props) => {
         onSubmit={(values) => sendRequest(values)}
         validationSchema={Yup.object().shape({
           date: Yup.date()
-            .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
+            .min(
+              moment().subtract(1, "days").endOf("day").toString(),
+              "Wprowadzona data jest nieprawidłowa!"
+            )
             .max(moment().format(), "Wprowadzona data jest nieprawidłowa!!"),
           type: Yup.string(),
           content: Yup.string()
@@ -362,11 +286,6 @@ const LostRequest = (props) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[0] = e.target.files[0];
-                    /*
-                    await exifr.parse(temp).then(output => {
-                      setLocation([output.latitude, output.longitude]);
-                    });
-                    */
                     await setFieldValue(
                       "date",
                       e.target.files[0].lastModifiedDate
@@ -441,21 +360,7 @@ const LostRequest = (props) => {
                 onStyleLoad={(map, e) => {
                   handleMapLoaded(map);
                 }}
-              >
-                {/*}onClick={(map, evt) => {
-                  setLocation([evt.lngLat.lat, evt.lngLat.lng]);
-                }}{*/}
-                {/*}
-                <Marker
-                  coordinates={[
-                    userCircle.longitude || 18.6057,
-                    userCircle.latitude || 53.015331
-                  ]}
-                >
-                  <MapImage src={locationPhoto} />
-                </Marker>
-              {*/}
-              </Map>
+              ></Map>
             </ImagesContainer>
 
             <SendButton type="submit">Przejdź dalej</SendButton>
