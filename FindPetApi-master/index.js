@@ -13,7 +13,7 @@ var transport = nodemailer.createTransport({
   service: "hotmail",
   auth: {
     user: "findpetapp@hotmail.com",
-    pass: "Haslo.123",
+    pass: "*",
   },
 });
 const storage = multer.diskStorage({

@@ -1,11 +1,14 @@
 import React, {useEffect, useContext, useState} from 'react';
-import {Text} from 'react-native';
+import {View, Text} from 'react-native';
 import {NewAppInfo} from '../../context/AppInfo';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import axios from 'axios';
 import {
+  MyTextInput,
   MyText,
   MyTouchableOpacity,
+  MyPicker,
+  LabelText,
 } from '../../styles/DataInfoStyle';
 import {Container, MapView, LocationName} from '../../styles/LocationInfoStyle';
 const returnStartLocation = userInfo => {
@@ -23,11 +26,12 @@ const returnStartLocation = userInfo => {
       }
     }
   }
+  //console.log(startLocation);
   return [startLocation.longitude, startLocation.latitude];
 };
 const LocationInfo = (props, map) => {
   const userInfo = useContext(NewAppInfo);
-  //*
+  //pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA
   //https://api.mapbox.com/geocoding/v5/mapbox.places/18.599031491675078,53.010916449085045.json?access_token=*
   const returnName = async points => {
     await axios
@@ -39,6 +43,7 @@ const LocationInfo = (props, map) => {
       });
   };
   const updatePoints = async points => {
+    //console.log(points);
     await returnName(points);
     await setPoints(points);
   };

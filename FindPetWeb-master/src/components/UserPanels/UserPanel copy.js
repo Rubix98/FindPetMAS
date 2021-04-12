@@ -17,8 +17,7 @@ const UserPanel = (props) => {
   const [userPosts, setUserPosts] = useState(null);
   let id;
   const Map = ReactMapboxGl({
-    accessToken:
-      "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA",
+    accessToken: "*",
   });
   if (userInfo.user) {
     id = userInfo.user.idUżytkownik;

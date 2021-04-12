@@ -52,8 +52,7 @@ import axios from "axios";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "../../App.css";
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA",
+  accessToken: "*",
 });
 const handleLostMapLoaded = (map, lng, lat, rad, index) => {
   map.loadImage(

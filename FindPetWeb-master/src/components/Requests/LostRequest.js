@@ -26,7 +26,7 @@ import {
   ContentArea,
   ContentText,
   SendButton,
-  ErrorText
+  ErrorText,
 } from "../../styles/LostRequestStyle";
 import { createGlobalStyle } from "styled-components/macro";
 import * as exifr from "exifr";
@@ -34,7 +34,7 @@ import {
   CircleMode,
   DragCircleMode,
   DirectMode,
-  SimpleSelectMode
+  SimpleSelectMode,
 } from "mapbox-gl-draw-circle";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import circle from "@turf/circle";
@@ -45,10 +45,9 @@ const GlobalStyling = createGlobalStyle`
     }
 `;
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA"
+  accessToken: "*",
 });
-const LostRequest = props => {
+const LostRequest = (props) => {
   const userInfo = useContext(NewAppInfo);
   console.log(props);
   const draw = new MapboxDraw({
@@ -60,14 +59,14 @@ const LostRequest = props => {
       draw_circle: CircleMode,
       drag_circle: DragCircleMode,
       direct_select: DirectMode,
-      simple_select: SimpleSelectMode
-    }
+      simple_select: SimpleSelectMode,
+    },
   });
   var moment = require("moment");
   //53.015331, 18.6057
   const [location, setLocation] = useState([18.598444, 53.01379]);
 
-  const onGeolocationUpdate = geolocation => {
+  const onGeolocationUpdate = (geolocation) => {
     if (geolocation.longitude) {
       setLocation([geolocation.longitude, geolocation.latitude]);
     }
@@ -82,10 +81,10 @@ const LostRequest = props => {
 
   console.log(data);
 
-  const handleMapLoaded = map => {
+  const handleMapLoaded = (map) => {
     map.loadImage(
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png",
-      function(error, image) {
+      function (error, image) {
         if (error) throw error;
         map.addImage("cat", image);
       }
@@ -101,7 +100,7 @@ const LostRequest = props => {
       temp.radius = drawTemp.features[0].properties.radiusInKm;
       setLocation([
         drawTemp.features[0].properties.center[0],
-        drawTemp.features[0].properties.center[1]
+        drawTemp.features[0].properties.center[1],
       ]);
       userInfo.setRequest({ ...temp });
       if (map.getSource("point")) {
@@ -112,10 +111,10 @@ const LostRequest = props => {
               type: "Feature",
               geometry: {
                 type: "Point",
-                coordinates: [temp.longitude, temp.latitude]
-              }
-            }
-          ]
+                coordinates: [temp.longitude, temp.latitude],
+              },
+            },
+          ],
         });
       } else {
         map.addSource("point", {
@@ -128,11 +127,11 @@ const LostRequest = props => {
                 geometry: {
                   type: "Point",
                   //53.015331, 18.6057
-                  coordinates: [temp.longitude, temp.latitude]
-                }
-              }
-            ]
-          }
+                  coordinates: [temp.longitude, temp.latitude],
+                },
+              },
+            ],
+          },
         });
         map.addLayer({
           id: "points",
@@ -140,15 +139,15 @@ const LostRequest = props => {
           source: "point",
           layout: {
             "icon-image": "cat",
-            "icon-size": 0.05
-          }
+            "icon-size": 0.05,
+          },
         });
       }
     };
-    map.on("draw.update", e => {
+    map.on("draw.update", (e) => {
       handleEvent();
     });
-    map.on("draw.modechange", e => {
+    map.on("draw.modechange", (e) => {
       handleEvent();
     });
 
@@ -163,7 +162,7 @@ const LostRequest = props => {
     });
   */
   };
-  const sendRequest = e => {
+  const sendRequest = (e) => {
     let temp = userInfo.request;
     temp.type = 0;
     temp.breed = e.breed;
@@ -200,9 +199,9 @@ const LostRequest = props => {
           image1: photo,
           image2: photo,
           image3: photo,
-          image4: photo
+          image4: photo,
         }}
-        onSubmit={values => sendRequest(values)}
+        onSubmit={(values) => sendRequest(values)}
         validationSchema={Yup.object().shape({
           date: Yup.date()
             .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
@@ -225,7 +224,7 @@ const LostRequest = props => {
           image1: Yup.mixed(),
           image2: Yup.mixed(),
           image3: Yup.mixed(),
-          image4: Yup.mixed()
+          image4: Yup.mixed(),
         })}
       >
         {({
@@ -236,7 +235,7 @@ const LostRequest = props => {
           setFieldValue,
           touched,
           isValid,
-          handleSubmit
+          handleSubmit,
         }) => (
           <FormContainer onSubmit={handleSubmit} mobile={userInfo.mobileMenu}>
             <HeaderText>Zgłoś zaginięcie zwierzęcia</HeaderText>
@@ -245,7 +244,7 @@ const LostRequest = props => {
               <div>
                 <SelectContainer
                   value={values.type}
-                  onChange={e => setFieldValue("type", e.target.value)}
+                  onChange={(e) => setFieldValue("type", e.target.value)}
                 >
                   <option value="Pies">Pies</option>
                   <option value="Kot">Kot</option>
@@ -264,7 +263,7 @@ const LostRequest = props => {
                 <ContentArea
                   value={values.content}
                   placeholder="Treść zgłoszenia"
-                  onChange={e => setFieldValue("content", e.target.value)}
+                  onChange={(e) => setFieldValue("content", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -273,7 +272,7 @@ const LostRequest = props => {
               <div>
                 <SelectContainer
                   value={values.size}
-                  onChange={e => setFieldValue("size", e.target.value)}
+                  onChange={(e) => setFieldValue("size", e.target.value)}
                 >
                   <option value="Mały">Mały</option>
                   <option value="Średni">Średni</option>
@@ -292,7 +291,7 @@ const LostRequest = props => {
                 <ContentText
                   value={values.hairColour}
                   type="text"
-                  onChange={e => setFieldValue("hairColour", e.target.value)}
+                  onChange={(e) => setFieldValue("hairColour", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -306,7 +305,7 @@ const LostRequest = props => {
               <div>
                 <ContentText
                   value={values.specialInfo}
-                  onChange={e => setFieldValue("specialInfo", e.target.value)}
+                  onChange={(e) => setFieldValue("specialInfo", e.target.value)}
                   type="text"
                 />
               </div>
@@ -320,7 +319,7 @@ const LostRequest = props => {
                 <ContentText
                   value={values.breed}
                   type="text"
-                  onChange={e => setFieldValue("breed", e.target.value)}
+                  onChange={(e) => setFieldValue("breed", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -333,7 +332,7 @@ const LostRequest = props => {
                 <ContentText
                   value={values.prize}
                   type="text"
-                  onChange={e => setFieldValue("prize", e.target.value)}
+                  onChange={(e) => setFieldValue("prize", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -344,7 +343,7 @@ const LostRequest = props => {
               </div>
               <div>
                 <DateTimePicker
-                  onChange={e => setFieldValue("date", e)}
+                  onChange={(e) => setFieldValue("date", e)}
                   value={values.date}
                 />
               </div>
@@ -358,7 +357,7 @@ const LostRequest = props => {
                 <InvisibleInput
                   id="file-input-1"
                   type="file"
-                  onChange={async e => {
+                  onChange={async (e) => {
                     e.persist();
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
@@ -385,7 +384,7 @@ const LostRequest = props => {
                 <InvisibleInput
                   id="file-input-2"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[1] = e.target.files[0];
@@ -401,7 +400,7 @@ const LostRequest = props => {
                 <InvisibleInput
                   id="file-input-3"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[2] = e.target.files[0];
@@ -417,7 +416,7 @@ const LostRequest = props => {
                 <InvisibleInput
                   id="file-input-4"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[3] = e.target.files[0];
@@ -435,7 +434,7 @@ const LostRequest = props => {
                 style="mapbox://styles/mapbox/streets-v11"
                 containerStyle={{
                   height: "100vh",
-                  width: "100vw"
+                  width: "100vw",
                 }}
                 center={[location[0], location[1]]}
                 containerStyle={{ width: 500, height: 400, margin: "auto" }}
