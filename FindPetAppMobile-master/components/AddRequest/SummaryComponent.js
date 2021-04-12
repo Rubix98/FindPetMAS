@@ -1,16 +1,9 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {NewAppInfo} from '../../context/AppInfo';
-import {View, Text, Image, Alert} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import RNFetchBlob from 'react-native-fetch-blob';
-import axios from 'axios';
 import moment from 'moment';
 import {
-  MyTextInput,
   MyText,
   MyTouchableOpacity,
-  MyPicker,
-  LabelText,
 } from '../../styles/DataInfoStyle';
 import {
   Container,
@@ -29,14 +22,12 @@ const Images = () => {
       return <AnimalImage source={{...img}} key={index} />;
     }
   });
-  //console.log(temp);
   return <ImagesContainer>{temp}</ImagesContainer>;
 };
 
 const SummaryComponent = props => {
   const userInfo = useContext(NewAppInfo);
   let context = userInfo.request;
-  //console.log(userInfo);
   let animal = context.animal || '(Nie podano)';
   let content = context.content || '(Nie podano)';
   let size = context.size;
@@ -53,9 +44,6 @@ const SummaryComponent = props => {
       imagesArray.push({...img});
     }
   });
-  const createDateNow = date => {
-    return date.getFullYear;
-  };
   const sendRequest = async () => {
     const redirect = () => {
       props.navigation.navigate('Home');
@@ -96,7 +84,6 @@ const SummaryComponent = props => {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        // 'Content-Type': 'multipart/form-data',
       },
       body: data,
     };

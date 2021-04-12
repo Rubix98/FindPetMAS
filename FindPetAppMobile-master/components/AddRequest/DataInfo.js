@@ -1,15 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useContext, useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Picker,
-  Button,
-  TouchableOpacity,
-} from 'react-native';
-import {NewAppInfo} from '../../context/AppInfo';
-import DateTimePicker from 'react-native-modal-datetime-picker';
+import React, { useContext, useState, useEffect } from "react";
+import { Picker } from "react-native";
+import { NewAppInfo } from "../../context/AppInfo";
+import DateTimePicker from "react-native-modal-datetime-picker";
 import {
   MyTextInput,
   MyText,
@@ -19,23 +12,23 @@ import {
   Container,
   PicturesContainer,
   AnimalPhoto,
-} from '../../styles/DataInfoStyle';
-import ImagePicker from 'react-native-image-picker';
-import {CheckBox} from 'react-native-elements';
-import {Image, TouchableHighlight, ScrollView} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import moment from 'moment';
-const DataInfo = props => {
+} from "../../styles/DataInfoStyle";
+import ImagePicker from "react-native-image-picker";
+import { CheckBox } from "react-native-elements";
+import { TouchableHighlight, ScrollView } from "react-native";
+import moment from "moment";
+import { options } from "/options";
+const DataInfo = (props) => {
   const [checked, setChecked] = useState(false);
-  const [content, setContent] = useState('');
-  const [size, setSize] = useState('Mały');
-  const [hairColour, setHairColour] = useState('');
-  const [specialInfo, setSpecialInfo] = useState('');
-  const [useDate, setDate] = useState(new Date('2020-06-12T14:42:42'));
+  const [content, setContent] = useState("");
+  const [size, setSize] = useState("Mały");
+  const [hairColour, setHairColour] = useState("");
+  const [specialInfo, setSpecialInfo] = useState("");
+  const [useDate, setDate] = useState(new Date("2020-06-12T14:42:42"));
   const [isVisible, setIsVisible] = useState(false);
   const userInfo = useContext(NewAppInfo);
-  const [breed, setBreed] = useState('');
-  const DefaultImage = require('../photo.png');
+  const [breed, setBreed] = useState("");
+  const DefaultImage = require("../photo.png");
   let images = [DefaultImage, DefaultImage, DefaultImage, DefaultImage];
   const updateChecked = () => {
     setChecked(!checked);
@@ -49,16 +42,8 @@ const DataInfo = props => {
   }
 
   const [imageSource, setImageSource] = useState(images);
-  const options = {
-    title: 'Wybierz zdjęcie zwierzęcia',
-    takePhotoButtonTitle: 'Zrób zdjęcie',
-    chooseFromLibraryButtonTitle: 'Wybierz zdjęcie z galerii',
-    storageOptions: {
-      skipBackup: true,
-      path: 'images',
-    },
-  };
-  const confirm = date => {
+
+  const confirm = (date) => {
     changeVisible();
     setDate(date);
   };
@@ -67,19 +52,17 @@ const DataInfo = props => {
     setIsVisible(!isVisible);
   };
 
-  const takePicture = id => {
+  const takePicture = (id) => {
     let temp = imageSource;
-    ImagePicker.showImagePicker(options, response => {
+    ImagePicker.showImagePicker(options, (response) => {
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+        console.log("User cancelled image picker");
       } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+        console.log("ImagePicker Error: ", response.error);
       } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
+        console.log("User tapped custom button: ", response.customButton);
       } else {
         temp[id] = response;
-        // You can also display the image using data:
-        // const source = { uri: 'data:image/jpeg;base64,' + response.data };
         setImageSource([...temp]);
       }
     });
@@ -94,7 +77,7 @@ const DataInfo = props => {
     temp.notice_date = useDate;
     temp.took = checked;
     await userInfo.setRequest(temp);
-    await props.navigation.navigate('LocationInfo');
+    await props.navigation.navigate("LocationInfo");
   };
   useEffect(() => {
     for (var i = 0; i < 4; i++) {
@@ -108,7 +91,7 @@ const DataInfo = props => {
     <Container>
       <ScrollView>
         <MyTextInput
-          onChangeText={text => {
+          onChangeText={(text) => {
             setContent(text);
           }}
           value={content}
@@ -120,16 +103,17 @@ const DataInfo = props => {
         <LabelText>Wybierz wielkość zwierzęcia:</LabelText>
         <MyPicker>
           <Picker
-            style={{color: 'white'}}
+            style={{ color: "white" }}
             selectedValue={size}
-            onValueChange={itemValue => setSize(itemValue)}>
-            <Picker.Item style={{color: 'white'}} label="Mały" value="Mały" />
+            onValueChange={(itemValue) => setSize(itemValue)}
+          >
+            <Picker.Item style={{ color: "white" }} label="Mały" value="Mały" />
             <Picker.Item
-              style={{color: 'white'}}
+              style={{ color: "white" }}
               label="Średni"
               value="Średni"
             />
-            <Picker.Item style={{color: 'white'}} label="Duży" value="Duży" />
+            <Picker.Item style={{ color: "white" }} label="Duży" value="Duży" />
           </Picker>
         </MyPicker>
 
@@ -137,7 +121,7 @@ const DataInfo = props => {
           placeholder="Podaj kolor sierści"
           placeholderTextColor="white"
           value={hairColour}
-          onChangeText={text => {
+          onChangeText={(text) => {
             setHairColour(text);
           }}
         />
@@ -145,7 +129,7 @@ const DataInfo = props => {
           placeholder="Podaj znaki szczególne"
           placeholderTextColor="white"
           value={specialInfo}
-          onChangeText={text => {
+          onChangeText={(text) => {
             setSpecialInfo(text);
           }}
         />
@@ -153,7 +137,7 @@ const DataInfo = props => {
           placeholder="Podaj rasę"
           placeholderTextColor="white"
           value={breed}
-          onChangeText={text => {
+          onChangeText={(text) => {
             setBreed(text);
           }}
         />
@@ -161,13 +145,13 @@ const DataInfo = props => {
           Wybierz datę zauważenia(jeśli nie została ustawiona automatycznie):
         </LabelText>
         <MyTouchableOpacity onPress={changeVisible}>
-          <MyText>{moment(useDate).format('D-MM-YYYY HH:mm:ss')}</MyText>
+          <MyText>{moment(useDate).format("D-MM-YYYY HH:mm:ss")}</MyText>
         </MyTouchableOpacity>
         <DateTimePicker
           mode="datetime"
           locale="pl"
           isVisible={isVisible}
-          onConfirm={date => {
+          onConfirm={(date) => {
             confirm(date);
           }}
           onCancel={changeVisible}
@@ -175,23 +159,27 @@ const DataInfo = props => {
         <PicturesContainer>
           <TouchableHighlight
             underlayColor="white"
-            onPress={() => takePicture(0)}>
+            onPress={() => takePicture(0)}
+          >
             <AnimalPhoto source={imageSource[0]} />
           </TouchableHighlight>
 
           <TouchableHighlight
             underlayColor="white"
-            onPress={() => takePicture(1)}>
+            onPress={() => takePicture(1)}
+          >
             <AnimalPhoto source={imageSource[1]} />
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor="white"
-            onPress={() => takePicture(2)}>
+            onPress={() => takePicture(2)}
+          >
             <AnimalPhoto source={imageSource[2]} />
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor="white"
-            onPress={() => takePicture(3)}>
+            onPress={() => takePicture(3)}
+          >
             <AnimalPhoto source={imageSource[3]} />
           </TouchableHighlight>
         </PicturesContainer>
@@ -207,7 +195,8 @@ const DataInfo = props => {
         <MyTouchableOpacity
           onPress={() => {
             locationInfo();
-          }}>
+          }}
+        >
           <MyText>Dalej</MyText>
         </MyTouchableOpacity>
       </ScrollView>
