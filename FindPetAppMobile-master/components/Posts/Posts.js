@@ -3,20 +3,14 @@ import React, {useEffect, useState, useContext, useRef} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   Picker,
-  Image,
 } from 'react-native';
-import Icon from 'react-native-ionicons';
 import {NewAppInfo} from '../../context/AppInfo';
-import {TextInput} from 'react-native-gesture-handler';
 import axios from 'axios';
 import moment from 'moment';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {NavigationEvents} from 'react-navigation';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import {withNavigationFocus} from 'react-navigation';
 import {
   MainContainer,
   HeaderText,
@@ -28,36 +22,25 @@ import {
   InformationAtribute,
   InformationValue,
   SectionContainer,
-  MapView,
   ImagesContainer,
   Img,
   CommentContainer,
-  InformationComment,
   LocationCommentContainer,
   MapViewer,
   FiltrMapViewer,
-  AddCommentButton,
-  TextButton,
   ActionContainer,
   ActionButton,
   ActionButtonText,
-  ActionButtonClicked,
-  ActionButtonClickedText,
   InputText,
   InputLabel,
   PickerContainer,
   Select,
   TimeButton,
-  SortContainer,
-  SortButton,
-  SortButtonClicked,
-  SortIcon,
   UserActions,
   FiltrButton,
 } from '../../styles/PostsStyle';
+import {route} from "./route"
 const Posts = props => {
-  console.log('START');
-  console.log(props.start);
 
   MapboxGL.setAccessToken(
     '*',
@@ -68,70 +51,20 @@ const Posts = props => {
   const [startIsVisible, setStartIsVisible] = useState(false);
   const [endIsVisible, setEndIsVisible] = useState(false);
   const [useFilter, setUseFilter] = useState(false);
-  const [useSort, setUseSort] = useState(false);
-  const [sortLocation, setSortLocation] = useState(0);
-  const [sortAddDate, setSortAddDate] = useState(0);
-  const [sortNoticeDate, setSortNoticeDate] = useState(0);
-  const [sortBreed, setSortBreed] = useState(0);
-  const [sortAnimalType, setSortAnimalType] = useState(0);
-  const [sortSize, setSortSize] = useState(0);
-  const [sortActually, setSortActually] = useState('');
-  const [filterContent, setFilterContent] = useState('');
-  const [filterType, setFilterType] = useState('');
-  const [filterBreed, setFilterBreed] = useState('');
-  const [filterSize, setFilterSize] = useState('');
-  const [filterHairColour, setFilterHairColour] = useState('');
   const [filterNoticeDateStart, setFilterNoticeDateStart] = useState('');
   const [filterNoticeDateEnd, setFilterNoticeDateEnd] = useState('');
-  const useForceUpdate = () => useState()[1];
-  const forceUpdate = useForceUpdate();
-  const [refresh, setRefresh] = useState(0);
   const openFilter = () => {
     let temp = useFilter;
     setUseFilter(!temp);
   };
-  const openSort = () => {
-    let temp = useSort;
-    setUseFilter(false);
-    setUseSort(!temp);
-  };
-
-  const confirm_start = date => {
-    changeVisible_start();
-    let temp = moment(date).format('YYMMD HHmmss');
-    setFilterNoticeDateStart(temp);
-  };
-
   const changeVisible_start = () => {
     setStartIsVisible(!startIsVisible);
   };
-  const confirm_end = date => {
-    changeVisible_end();
-    let temp = moment(date).format('YYMMD HHmmss');
-    setFilterNoticeDateEnd(temp);
-  };
-
   const changeVisible_end = () => {
     setEndIsVisible(!startIsVisible);
   };
 
   const PostComponent = props => {
-    let route = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Point',
-            coordinates: [
-              props.post.Dlugosc_Geograficzna,
-              props.post.Szerokosc_Geograficzna,
-            ],
-          },
-        },
-      ],
-    };
     let circles = {
       visibility: 'visible',
       circleRadius: props.post.obszar || 0,
@@ -143,7 +76,6 @@ const Posts = props => {
     const [circle, setCircle] = useState(circles);
     const mapRef = useRef(null);
     const handleCircle = (r, post) => {
-      console.log(post);
       const metersPerPixel = (lat, r) => {
         var earthCircumference = 40075017;
         var latitudeRadians = lat * (Math.PI / 180);
@@ -158,8 +90,6 @@ const Posts = props => {
           metersPerPixel(post.Dlugosc_Geograficzna, zoomLevel)
         );
       };
-      console.log(r + ' ' + post.Dlugosc_Geograficzna + ' ' + post.obszar);
-      console.log(metersPerPixel(post.Dlugosc_Geograficzna, r));
       let newCircles = {
         visibility: 'visible',
         circleRadius: pixelValue(post, r) || 0,
@@ -168,8 +98,6 @@ const Posts = props => {
         circleStrokeWidth: 5,
         circleOpacity: 0.7,
       };
-      console.log('||');
-      console.log(pixelValue(post, r));
       setCircle({...newCircles});
     };
     return (
@@ -289,9 +217,7 @@ const Posts = props => {
                     <MapboxGL.ShapeSource id="line1" shape={route}>
                       <MapboxGL.CircleLayer
                         circleRadius={60}
-                        //id="population"
                         id="sf2010CircleFill"
-                        //sourceLayerID="sf2010"
                         style={circle}
                       />
                     </MapboxGL.ShapeSource>
@@ -551,8 +477,6 @@ const Posts = props => {
     const pixelValue = (location, zoomLevel, myRadius) => {
       return (myRadius * 1000) / metersPerPixel(location, zoomLevel);
     };
-    console.log(r + ' ' + location[0] + ' ' + myRadius);
-    console.log(metersPerPixel(location[0], r));
     let newCircles = {
       visibility: 'visible',
       circleRadius: pixelValue(location[0], r, myRadius) || 0,
@@ -561,7 +485,6 @@ const Posts = props => {
       circleStrokeWidth: 5,
       circleOpacity: 0.7,
     };
-    console.log('||');
     setCircle({...newCircles});
   };
 
@@ -587,8 +510,6 @@ const Posts = props => {
     setLocation([points[0], points[1]]);
   };
   useEffect(() => {
-    console.log('}}}}}}}}]');
-    console.log(filtrVariables);
     const fetchData = async () => {
       await axios.get(userInfo.apiip + '/rasy').then(res => {
         if (res.data) {
@@ -599,23 +520,19 @@ const Posts = props => {
           }
         }
       });
-      console.log('psosty');
       await axios
         .post(
           userInfo.apiip + '/postyzkomentarzami/' + props.no || 1,
           filtrVariables,
         )
         .then(res => {
-          console.log('||||||||||||||||');
           setPosts(res.data);
-          console.log(res.data);
         })
         .catch(err => console.log(err));
     };
     fetchData();
   }, [filtrVariables]);
 
-  console.log(props);
   return (
     <MainContainer>
       <ScrollView>
@@ -767,9 +684,7 @@ const Posts = props => {
                 <MapboxGL.ShapeSource id="line1" shape={route}>
                   <MapboxGL.CircleLayer
                     circleRadius={60}
-                    //id="population"
                     id="sf2010CircleFill"
-                    //sourceLayerID="sf2010"
                     style={circle}
                   />
                 </MapboxGL.ShapeSource>
@@ -798,7 +713,6 @@ const Posts = props => {
         )}
         {posts && posts.length > 0 && (
           <View>
-            {console.log(posts[0])}
             {posts.map((post, index) => {
               return (
                 <PostComponent

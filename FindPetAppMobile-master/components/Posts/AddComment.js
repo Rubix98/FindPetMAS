@@ -27,7 +27,6 @@ import {
 import {options} from './options'
 import {config} from './config'
 const AddComment = props => {
-  console.log(props);
   let tempArray = [img, img, img, img];
   const [isVisibles, setIsVisible] = useState(false);
   const userInfo = useContext(NewAppInfo);
@@ -51,7 +50,6 @@ const AddComment = props => {
         console.log('User tapped custom button: ', response.customButton);
       } else {
         temp[index] = response;
-        console.log(temp);
         setPhotos([...temp]);
       }
     });
@@ -85,7 +83,6 @@ const AddComment = props => {
     data.append('idUżytkownik', userInfo.user.idUżytkownik);
     data.append('tresc', content || '');
     data.append('komentarz', id);
-    console.log(moment().format('YYYY-MM-D HH:mm:ss'));
     data.append('data_zgloszenia', moment().format('YYYY-MM-D HH:mm:ss'));
     data.append(
       'data_time',
@@ -116,7 +113,6 @@ const AddComment = props => {
     await setTimeout(redirect, 2000);
   };
   useEffect(() => {
-    console.log('AAAA');
     if (photos[0].latitude && photos[0].longitude) {
       setLocation([photos[0].longitude, photos[0].latitude]);
       updateLocationInfo();
@@ -186,7 +182,6 @@ const AddComment = props => {
         <MapView>
           <MapViewer
             onPress={({geometry}) => {
-              console.log(geometry.coordinates);
               setLocation(geometry.coordinates);
               updateLocationInfo();
             }}>

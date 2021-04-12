@@ -3,20 +3,12 @@ import React, {useEffect, useState, useContext, useRef} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
-  Picker,
-  Image,
 } from 'react-native';
-import Icon from 'react-native-ionicons';
 import {NewAppInfo} from '../../context/AppInfo';
-import {TextInput} from 'react-native-gesture-handler';
 import axios from 'axios';
 import moment from 'moment';
-import DateTimePicker from 'react-native-modal-datetime-picker';
-import {NavigationEvents} from 'react-navigation';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import {withNavigationFocus} from 'react-navigation';
 import {
   MainContainer,
   HeaderText,
@@ -28,34 +20,14 @@ import {
   InformationAtribute,
   InformationValue,
   SectionContainer,
-  MapView,
   ImagesContainer,
   Img,
   CommentContainer,
-  InformationComment,
   LocationCommentContainer,
   MapViewer,
-  AddCommentButton,
-  TextButton,
-  ActionContainer,
-  ActionButton,
-  ActionButtonText,
-  ActionButtonClicked,
-  ActionButtonClickedText,
-  InputText,
-  InputLabel,
-  PickerContainer,
-  Select,
-  TimeButton,
-  SortContainer,
-  SortButton,
-  SortButtonClicked,
-  SortIcon,
   UserActions,
 } from '../../styles/PostsStyle';
 const Post = props => {
-  console.log('START');
-  console.log(props.start);
 
   MapboxGL.setAccessToken(
     '*',
@@ -64,42 +36,7 @@ const Post = props => {
   const [posts, setPosts] = useState([]);
   const [allBreeds, setBreeds] = useState([]);
   const [startIsVisible, setStartIsVisible] = useState(false);
-  const [endIsVisible, setEndIsVisible] = useState(false);
-  const [useFilter, setUseFilter] = useState(false);
-  const [useSort, setUseSort] = useState(false);
-  const [sortLocation, setSortLocation] = useState(0);
-  const [sortAddDate, setSortAddDate] = useState(0);
-  const [sortNoticeDate, setSortNoticeDate] = useState(0);
-  const [sortBreed, setSortBreed] = useState(0);
-  const [sortAnimalType, setSortAnimalType] = useState(0);
-  const [sortSize, setSortSize] = useState(0);
-  const [sortActually, setSortActually] = useState('');
-  const [filterContent, setFilterContent] = useState('');
-  const [filterType, setFilterType] = useState('');
-  const [filterBreed, setFilterBreed] = useState('');
-  const [filterSize, setFilterSize] = useState('');
-  const [filterHairColour, setFilterHairColour] = useState('');
-  const [filterNoticeDateStart, setFilterNoticeDateStart] = useState('');
-  const [filterNoticeDateEnd, setFilterNoticeDateEnd] = useState('');
   const useForceUpdate = () => useState()[1];
-  const forceUpdate = useForceUpdate();
-  const [refresh, setRefresh] = useState(0);
-  const openFilter = () => {
-    let temp = useFilter;
-    setUseFilter(!temp);
-    setUseSort(false);
-  };
-  const openSort = () => {
-    let temp = useSort;
-    setUseFilter(false);
-    setUseSort(!temp);
-  };
-
-  const confirm_start = date => {
-    changeVisible_start();
-    let temp = moment(date).format('YYMMD HHmmss');
-    setFilterNoticeDateStart(temp);
-  };
 
   const changeVisible_start = () => {
     setStartIsVisible(!startIsVisible);
@@ -142,7 +79,6 @@ const Post = props => {
     const [circle, setCircle] = useState(circles);
     const mapRef = useRef(null);
     const handleCircle = (r, post) => {
-      console.log(post);
       const metersPerPixel = (lat, r) => {
         var earthCircumference = 40075017;
         var latitudeRadians = lat * (Math.PI / 180);
@@ -157,8 +93,6 @@ const Post = props => {
           metersPerPixel(post.Dlugosc_Geograficzna, zoomLevel)
         );
       };
-      console.log(r + ' ' + post.Dlugosc_Geograficzna + ' ' + post.obszar);
-      console.log(metersPerPixel(post.Dlugosc_Geograficzna, r));
       let newCircles = {
         visibility: 'visible',
         circleRadius: pixelValue(post, r) || 0,
@@ -167,8 +101,6 @@ const Post = props => {
         circleStrokeWidth: 5,
         circleOpacity: 0.7,
       };
-      console.log('||');
-      console.log(pixelValue(post, r));
       setCircle({...newCircles});
     };
     return (
@@ -511,7 +443,6 @@ const Post = props => {
         }
       }
     });
-    console.log('psosty');
     axios
       .get(userInfo.apiip + '/posty/' + props.navigation.state.params.id )
       .then(res => {
@@ -521,13 +452,11 @@ const Post = props => {
       
   }, [props.navigation.state.params]);
 
-  console.log(props.navigation.state.params);
   return (
     <MainContainer>
       <ScrollView>
         {posts && posts.length > 0 && (
           <View>
-            {console.log(posts[0])}
             {posts.map((post, index) => {
               return (
                 <PostComponent
