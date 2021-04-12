@@ -174,6 +174,17 @@ const Post = props => {
     return (
       <PostContainer>
         <View>
+          <View>
+            <UserLink
+              style={{color: 'green'}}
+                onPress={() => {
+                  props.navigate.navigate('Posts', {
+                    id: props.post.idPosty,
+                  })}}
+                >
+                  Edytuj
+              </UserLink>
+          </View>
           {props.no == 0 && <HeaderText>Zaginął!</HeaderText>}
           {props.post.typ_zgloszenia === 1 && (
             <HeaderText>Zauważyłem!</HeaderText>
@@ -288,9 +299,7 @@ const Post = props => {
                     <MapboxGL.ShapeSource id="line1" shape={route}>
                       <MapboxGL.CircleLayer
                         circleRadius={60}
-                        //id="population"
                         id="sf2010CircleFill"
-                        //sourceLayerID="sf2010"
                         style={circle}
                       />
                     </MapboxGL.ShapeSource>
