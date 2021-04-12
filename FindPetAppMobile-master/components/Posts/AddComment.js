@@ -2,10 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  TextInput,
   TouchableHighlight,
-  Image,
   ScrollView,
 } from 'react-native';
 import {NewAppInfo} from '../../context/AppInfo';
@@ -27,19 +24,12 @@ import {
   MapViewer,
   MapView
 } from '../../styles/AddCommentStyle';
+import {options} from './options'
+import {config} from './config'
 const AddComment = props => {
   console.log(props);
-  const options = {
-    title: 'Wybierz zdjęcie zwierzęcia',
-    takePhotoButtonTitle: 'Zrób zdjęcie',
-    chooseFromLibraryButtonTitle: 'Wybierz zdjęcie z galerii',
-    storageOptions: {
-      skipBackup: true,
-      path: 'images',
-    },
-  };
   let tempArray = [img, img, img, img];
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisibles, setIsVisible] = useState(false);
   const userInfo = useContext(NewAppInfo);
   const [content, setContent] = useState('');
   const [date, setDate] = useState(undefined);
@@ -62,8 +52,6 @@ const AddComment = props => {
       } else {
         temp[index] = response;
         console.log(temp);
-        // You can also display the image using data:
-        // const source = { uri: 'data:image/jpeg;base64,' + response.data };
         setPhotos([...temp]);
       }
     });
@@ -115,14 +103,6 @@ const AddComment = props => {
         counter++;
       }
     }
-    const config = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        // 'Content-Type': 'multipart/form-data',
-      },
-      body: data,
-    };
     data.append('ilosc_zdjec', counter);
     await fetch(userInfo.apiip + '/posty', config).then(res => {
       res.text().then(text => {
@@ -180,7 +160,6 @@ const AddComment = props => {
           />
         </View>
         <ItemAtribute>Zdjęcia:</ItemAtribute>
-        {console.log(photos[0])}
         <PhotosContainer>
           <TouchableHighlight
             underlayColor="white"
