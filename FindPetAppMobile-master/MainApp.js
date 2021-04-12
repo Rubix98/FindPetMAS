@@ -13,6 +13,7 @@ import LocationInfo from './components/AddRequest/LocationInfo';
 import SummaryComponent from './components/AddRequest/SummaryComponent';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
+import EditPosts from './components/Posts/EditPosts'
 import SelectLogin from './components/Profile/SelectLogin';
 import RegularLogin from './components/Profile/RegularLogin';
 import UniqueCodeLogin from './components/Profile/UniqueCodeLogin';
@@ -143,6 +144,13 @@ export const AppStack = createStackNavigator(
     },
     EditProfile: {
       screen: EditProfile,
+      navigationOptions: {
+        header: null,
+        gesturesEnabled: false,
+      },
+    },
+    EditPosts: {
+      screen: EditPosts,
       navigationOptions: {
         header: null,
         gesturesEnabled: false,
