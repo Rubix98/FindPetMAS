@@ -156,8 +156,7 @@ const Summary = (props) => {
     return <ImageContainer>{result}</ImageContainer>;
   };
   const Map = ReactMapboxGl({
-    accessToken:
-      "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA",
+    accessToken: "*",
   });
   console.log(userInfo.sendDate);
   const handleLostMapLoaded = (map) => {

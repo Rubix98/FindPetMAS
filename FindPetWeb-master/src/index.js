@@ -4,8 +4,8 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { AppInfoProvider } from "./context/AppInfo";
-import mapboxgl from 'mapbox-gl';
-mapboxgl.accessToken = 'pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA';
+import mapboxgl from "mapbox-gl";
+mapboxgl.accessToken = "*";
 ReactDOM.render(
   <AppInfoProvider>
     <App />

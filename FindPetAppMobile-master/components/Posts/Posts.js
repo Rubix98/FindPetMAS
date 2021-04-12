@@ -60,7 +60,7 @@ const Posts = props => {
   console.log(props.start);
 
   MapboxGL.setAccessToken(
-    'pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA',
+    '*',
   );
   const userInfo = useContext(NewAppInfo);
   const [posts, setPosts] = useState([]);

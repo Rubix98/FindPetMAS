@@ -19,8 +19,7 @@ import {
 } from "../../styles/AddCommentStyle";
 import "../../styles/UserMap.css";
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA",
+  accessToken: "*",
 });
 const AddComment = (props) => {
   const [files, setFiles] = useState([]);

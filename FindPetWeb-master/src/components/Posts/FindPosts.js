@@ -23,8 +23,7 @@ import axios from "axios";
 import { NewAppInfo } from "../../context/AppInfo";
 import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA",
+  accessToken: "*",
 });
 const useForceUpdate = () => useState()[1];
 const FindPosts = (props) => {

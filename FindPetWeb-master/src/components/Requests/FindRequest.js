@@ -25,7 +25,7 @@ import {
   ContentArea,
   ContentText,
   SendButton,
-  ErrorText
+  ErrorText,
 } from "../../styles/LostRequestStyle";
 import { createGlobalStyle } from "styled-components/macro";
 import * as exifr from "exifr";
@@ -34,10 +34,9 @@ import circle from "@turf/circle";
 import { geolocated } from "react-geolocated";
 
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA"
+  accessToken: "*",
 });
-const FindRequest = props => {
+const FindRequest = (props) => {
   const userInfo = useContext(NewAppInfo);
   console.log(props);
   const draw = new MapboxDraw();
@@ -57,7 +56,7 @@ const FindRequest = props => {
   const handleLocationFromFile = (myMap, output) => {
     myMap.loadImage(
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png",
-      function(error, image) {
+      function (error, image) {
         if (error) throw error;
         myMap.addImage("cat", image);
       }
@@ -73,7 +72,7 @@ const FindRequest = props => {
       setLocation([...[output.longitude, output.latitude]]);
     }
     myMap.flyTo({
-      center: [output.longitude, output.latitude]
+      center: [output.longitude, output.latitude],
     });
     if (myMap.getLayer("points")) {
       myMap.removeLayer("points");
@@ -88,11 +87,11 @@ const FindRequest = props => {
             type: "Feature",
             geometry: {
               type: "Point",
-              coordinates: [output.longitude, output.latitude]
-            }
-          }
-        ]
-      }
+              coordinates: [output.longitude, output.latitude],
+            },
+          },
+        ],
+      },
     });
 
     mapObj.addLayer({
@@ -101,13 +100,13 @@ const FindRequest = props => {
       source: "point",
       layout: {
         "icon-image": "cat",
-        "icon-size": 0.05
-      }
+        "icon-size": 0.05,
+      },
     });
 
     setLocation([...[output.longitude, output.latitude]]);
   };
-  const handleMapLoaded = map => {
+  const handleMapLoaded = (map) => {
     console.log(test);
     if (props.coords) {
       map.once("render", () => {
@@ -119,12 +118,12 @@ const FindRequest = props => {
       });
     }
 
-    map.on("click", e => {
+    map.on("click", (e) => {
       console.log(e);
       if (!map.hasImage("image")) {
         map.loadImage(
           "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png",
-          function(error, image) {
+          function (error, image) {
             if (error) throw error;
             map.addImage("cat", image);
           }
@@ -154,10 +153,10 @@ const FindRequest = props => {
               type: "Feature",
               geometry: {
                 type: "Point",
-                coordinates: [temp.longitude, temp.latitude]
-              }
-            }
-          ]
+                coordinates: [temp.longitude, temp.latitude],
+              },
+            },
+          ],
         });
       } else {
         map.addSource("point", {
@@ -169,11 +168,11 @@ const FindRequest = props => {
                 type: "Feature",
                 geometry: {
                   type: "Point",
-                  coordinates: [temp.longitude, temp.latitude]
-                }
-              }
-            ]
-          }
+                  coordinates: [temp.longitude, temp.latitude],
+                },
+              },
+            ],
+          },
         });
       }
       map.addLayer({
@@ -182,13 +181,13 @@ const FindRequest = props => {
         source: "point",
         layout: {
           "icon-image": "cat",
-          "icon-size": 0.05
-        }
+          "icon-size": 0.05,
+        },
       });
     });
   };
 
-  const sendRequest = e => {
+  const sendRequest = (e) => {
     let temp = userInfo.request;
     temp.took = e.took;
     if (!temp.took) {
@@ -233,9 +232,9 @@ const FindRequest = props => {
           image1: photo,
           image2: photo,
           image3: photo,
-          image4: photo
+          image4: photo,
         }}
-        onSubmit={values => sendRequest(values)}
+        onSubmit={(values) => sendRequest(values)}
         validationSchema={Yup.object().shape({
           date: Yup.date()
             .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
@@ -258,7 +257,7 @@ const FindRequest = props => {
           image1: Yup.mixed(),
           image2: Yup.mixed(),
           image3: Yup.mixed(),
-          image4: Yup.mixed()
+          image4: Yup.mixed(),
         })}
       >
         {({
@@ -269,7 +268,7 @@ const FindRequest = props => {
           setFieldValue,
           touched,
           isValid,
-          handleSubmit
+          handleSubmit,
         }) => (
           <FormContainer onSubmit={handleSubmit} mobile={userInfo.mobileMenu}>
             <HeaderText>Zgłoś zauważenie zwierzęcia</HeaderText>
@@ -278,7 +277,7 @@ const FindRequest = props => {
               <div>
                 <SelectContainer
                   value={values.type}
-                  onChange={e => setFieldValue("type", e.target.value)}
+                  onChange={(e) => setFieldValue("type", e.target.value)}
                 >
                   <option value="Pies">Pies</option>
                   <option value="Kot">Kot</option>
@@ -297,7 +296,7 @@ const FindRequest = props => {
                 <ContentArea
                   value={values.content}
                   placeholder="Treść zgłoszenia"
-                  onChange={e => setFieldValue("content", e.target.value)}
+                  onChange={(e) => setFieldValue("content", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -306,7 +305,7 @@ const FindRequest = props => {
               <div>
                 <SelectContainer
                   value={values.size}
-                  onChange={e => setFieldValue("size", e.target.value)}
+                  onChange={(e) => setFieldValue("size", e.target.value)}
                 >
                   <option value="Mały">Mały</option>
                   <option value="Średni">Średni</option>
@@ -325,7 +324,7 @@ const FindRequest = props => {
                 <ContentText
                   value={values.hairColour}
                   type="text"
-                  onChange={e => setFieldValue("hairColour", e.target.value)}
+                  onChange={(e) => setFieldValue("hairColour", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -339,7 +338,7 @@ const FindRequest = props => {
               <div>
                 <ContentText
                   value={values.specialInfo}
-                  onChange={e => setFieldValue("specialInfo", e.target.value)}
+                  onChange={(e) => setFieldValue("specialInfo", e.target.value)}
                   type="text"
                 />
               </div>
@@ -353,7 +352,7 @@ const FindRequest = props => {
                 <ContentText
                   value={values.breed}
                   type="text"
-                  onChange={e => setFieldValue("breed", e.target.value)}
+                  onChange={(e) => setFieldValue("breed", e.target.value)}
                 />
               </div>
             </LabelContainer>
@@ -364,7 +363,7 @@ const FindRequest = props => {
               </div>
               <div>
                 <DateTimePicker
-                  onChange={e => setFieldValue("date", e)}
+                  onChange={(e) => setFieldValue("date", e)}
                   value={values.date}
                 />
               </div>
@@ -378,13 +377,13 @@ const FindRequest = props => {
                 <InvisibleInput
                   id="file-input-1"
                   type="file"
-                  onChange={async e => {
+                  onChange={async (e) => {
                     e.persist();
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[0] = e.target.files[0];
                     setSet(true);
-                    await exifr.parse(temp).then(output => {
+                    await exifr.parse(temp).then((output) => {
                       if (output) handleLocationFromFile(mapObj, output);
                     });
                     console.log(e.target.files[0].lastModifiedDate);
@@ -405,7 +404,7 @@ const FindRequest = props => {
                 <InvisibleInput
                   id="file-input-2"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[1] = e.target.files[0];
@@ -421,7 +420,7 @@ const FindRequest = props => {
                 <InvisibleInput
                   id="file-input-3"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[2] = e.target.files[0];
@@ -437,7 +436,7 @@ const FindRequest = props => {
                 <InvisibleInput
                   id="file-input-4"
                   type="file"
-                  onChange={e => {
+                  onChange={(e) => {
                     let temp = URL.createObjectURL(e.target.files[0]);
                     let tempArray = files;
                     tempArray[3] = e.target.files[0];
@@ -455,7 +454,7 @@ const FindRequest = props => {
                 style="mapbox://styles/mapbox/streets-v11"
                 containerStyle={{
                   height: "100vh",
-                  width: "100vw"
+                  width: "100vw",
                 }}
                 containerStyle={{ width: 500, height: 400, margin: "auto" }}
                 onStyleLoad={(map, e) => {
@@ -470,7 +469,7 @@ const FindRequest = props => {
               control={
                 <Checkbox
                   style={{
-                    color: "#00e676"
+                    color: "#00e676",
                   }}
                   checked={values.took}
                   onChange={handleChange("took")}

@@ -47,7 +47,7 @@ const AddComment = props => {
   const [locationName, setLocationName] = useState('');
   const [photos, setPhotos] = useState(tempArray);
   MapboxGL.setAccessToken(
-    'pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA',
+    '*',
   );
 
   const takePicture = index => {
@@ -77,11 +77,11 @@ const AddComment = props => {
     setDate(date);
   };
   const updateLocationInfo = async () => {
-    //pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA
-    //https://api.mapbox.com/geocoding/v5/mapbox.places/18.599031491675078,53.010916449085045.json?access_token=pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA
+    //*
+    //https://api.mapbox.com/geocoding/v5/mapbox.places/18.599031491675078,53.010916449085045.json?access_token=*
     await axios
       .get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${location[0]},${location[1]}.json?access_token=pk.eyJ1IjoibWtsaW1lazE5OTciLCJhIjoiY2szd3Z4ZW9rMTA5ajNkb3B4cXd6ZW9wNSJ9.060xIr41HznBuJS_UYt1IA`,
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${location[0]},${location[1]}.json?access_token=*`,
       )
       .then(response => {
         setLocationName(response.data.features[0].place_name);
