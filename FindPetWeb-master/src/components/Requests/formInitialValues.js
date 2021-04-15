@@ -1,0 +1,15 @@
+export default formInitialValues = {
+  date: "",
+  took: false,
+  type: "Pies",
+  content: "",
+  size: "Mały",
+  hairColour: "",
+  specialInfo: "",
+  breed: "",
+  prize: 0,
+  image1: photo,
+  image2: photo,
+  image3: photo,
+  image4: photo,
+};
