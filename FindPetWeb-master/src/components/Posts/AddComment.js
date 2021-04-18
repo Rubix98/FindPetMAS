@@ -1,10 +1,8 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Formik, Form, Field } from "formik";
+import React, { useState, useContext } from "react";
+import { Formik } from "formik";
 import DateTimePicker from "react-datetime-picker";
-import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
 import * as exifr from "exifr";
 import * as Yup from "yup";
-import axios from "axios";
 import photo from "../../photo.png";
 import { NewAppInfo } from "../../context/AppInfo";
 import {
@@ -18,9 +16,10 @@ import {
   HeaderText,
 } from "../../styles/AddCommentStyle";
 import "../../styles/UserMap.css";
-const Map = ReactMapboxGl({
-  accessToken: "*",
-});
+import getSourceData from "./getSourceData";
+import getSource from "./getSource";
+import mapLayer from "./mapLayer";
+
 const AddComment = (props) => {
   const [files, setFiles] = useState([]);
   const userInfo = useContext(NewAppInfo);
@@ -67,44 +66,11 @@ const AddComment = (props) => {
         map.removeLayer("points");
       }
       if (map.getSource("point")) {
-        map.getSource("point").setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [temp.longitude, temp.latitude],
-              },
-            },
-          ],
-        });
+        map.getSource("point").setData(getSourceData(temp));
       } else {
-        map.addSource("point", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  coordinates: [temp.longitude, temp.latitude],
-                },
-              },
-            ],
-          },
-        });
+        map.addSource("point", getSource(temp));
       }
-      map.addLayer({
-        id: "points",
-        type: "symbol",
-        source: "point",
-        layout: {
-          "icon-image": "cat",
-          "icon-size": 0.05,
-        },
-      });
+      map.addLayer(mapLayer);
     });
   };
   const handleLocationFromFile = (myMap, output) => {
@@ -130,31 +96,9 @@ const AddComment = (props) => {
       myMap.removeLayer("points");
     }
 
-    myMap.addSource("point", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              coordinates: [output.longitude, output.latitude],
-            },
-          },
-        ],
-      },
-    });
+    myMap.addSource("point", getSource(output));
 
-    mapObj.addLayer({
-      id: "points",
-      type: "symbol",
-      source: "point",
-      layout: {
-        "icon-image": "cat",
-        "icon-size": 0.05,
-      },
-    });
+    mapObj.addLayer(mapLayer);
 
     setLocation([...[output.longitude, output.latitude]]);
   };
@@ -220,7 +164,10 @@ const AddComment = (props) => {
       onSubmit={(values) => sendRequest(values)}
       validationSchema={Yup.object().shape({
         date: Yup.date()
-          .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
+          .min(
+            moment().subtract(1, "days").endOf("day").toString(),
+            "Wprowadzona data jest nieprawidłowa!"
+          )
           .max(moment().format(), "Wprowadzona data jest nieprawidłowa!!"),
         type: Yup.string(),
         content: Yup.string()
@@ -357,12 +304,6 @@ const AddComment = (props) => {
             <HeaderText>Podaj lokalizację gdzie zauważyłeś zwierzę:</HeaderText>
             <Map
               style="mapbox://styles/mapbox/streets-v11"
-              /*containerStyle={{
-                height: "100vh",
-                width: "100vw"
-              }}
-              containerStyle={{ width: 500, height: 400, margin: "auto" }}
-              */
               className="usermap"
               onStyleLoad={(map, e) => {
                 setMapObj(map);
