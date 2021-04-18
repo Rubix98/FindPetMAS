@@ -1,0 +1,17 @@
+export default formInitialValues = {
+  date: moment(post[0].data_time).format("YYYY-MM-D HH:mm:ss"),
+  took: post[0].typ_zgloszenia == 2 ? true : false,
+  type: post[0].typ_zwierzecia || "Pies",
+  content: post[0].tresc || "",
+  size: post[0].wielkosc || "",
+  hairColour: post[0].kolor_siersci || "",
+  specialInfo: post[0].znaki_szczegolne || "",
+  breed: post[0].rasa || "",
+  prize: post[0].nagroda || 0,
+  image1: files[0],
+  image2: files[1],
+  image3: files[2],
+  image4: files[3],
+  request: post[0].typ_zgloszenia,
+  idZwierzecia: post[0].idZwierzecia,
+};
