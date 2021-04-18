@@ -15,8 +15,8 @@ import {
   SubmitButton,
 } from "../../styles/EditPostStyle";
 import { NewAppInfo } from "../../context/AppInfo";
-import { Formik, Form, Field } from "formik";
-import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import { Formik } from "formik";
+import ReactMapboxGl from "react-mapbox-gl";
 import photo from "../../photo.png";
 import {
   CircleMode,
@@ -31,23 +31,16 @@ import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import circle from "@turf/circle";
 import "../../styles/UserMap.css";
-const Map = ReactMapboxGl({
-  accessToken: "*",
-});
-const draw = new MapboxDraw({
-  defaultMode: "draw_circle",
-  userProperties: true,
-  initialRadiusInKm: 0.1,
-  modes: {
-    ...MapboxDraw.modes,
-    draw_circle: CircleMode,
-    drag_circle: DragCircleMode,
-    direct_select: DirectMode,
-    simple_select: SimpleSelectMode,
-  },
-});
+import formInitialValues from "./formInitialValues";
+import getHandleClickMapSource from "./getHandleClickMapSource";
+import mapLayer from "./mapLayer";
+import getSource from "./getSource";
+import circleLayer from "./circleLayer";
+import getSourceObject from "./getSourceObject";
+import getLayerCircle from "./getLayerCircle";
+import getDrawOptions from "./getDrawOptions";
+const draw = getDrawOptions();
 const EditPost = (props) => {
-  const [request, setRequest] = useState([]);
   const [myRadius, setMyRadius] = useState(0);
   var moment = require("moment");
   const handleMapLoaded = (map, lng, lat, rad, type) => {
@@ -63,63 +56,15 @@ const EditPost = (props) => {
         steps: 80,
         units: "kilometers",
       });
-      map.addLayer({
-        id: "circle-fill",
-        type: "fill",
-        source: {
-          type: "geojson",
-          data: myCircle,
-        },
-        paint: {
-          "fill-color": "#33691E",
-          "fill-opacity": 0.5,
-        },
-      });
+      map.addLayer(getLayerCircle(myCircle));
     }
     if (map.getSource("point")) {
       map.removeSource("point");
     }
-    map.addSource("point", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              //53.015331, 18.6057
-              coordinates: [lng, lat],
-            },
-          },
-        ],
-      },
-    });
-    map.addLayer({
-      id: "points",
-      type: "symbol",
-      source: "point",
-      layout: {
-        "icon-image": "cat",
-        "icon-size": 0.05,
-      },
-    });
+    map.addSource("point", getSourceObject(lng, lat));
+    map.addLayer(mapLayer);
     if (rad > 0) {
-      map.addLayer({
-        id: "circle-outline",
-        type: "line",
-        source: {
-          type: "geojson",
-          data: circle,
-        },
-        paint: {
-          "line-color": "#1B5E20",
-          "line-opacity": 0.5,
-          "line-width": 1,
-          "line-offset": 5,
-        },
-        layout: {},
-      });
+      map.addLayer(circleLayer);
     }
     const handleEvent = () => {
       let drawTemp = draw.getAll();
@@ -139,44 +84,10 @@ const EditPost = (props) => {
       setMyRadius(temp.radius);
       userInfo.setRequest({ ...temp });
       if (map.getSource("point")) {
-        map.getSource("point").setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [temp.longitude, temp.latitude],
-              },
-            },
-          ],
-        });
+        map.getSource("point").setData(getSourceData(temp));
       } else {
-        map.addSource("point", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  //53.015331, 18.6057
-                  coordinates: [temp.longitude, temp.latitude],
-                },
-              },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "points",
-          type: "symbol",
-          source: "point",
-          layout: {
-            "icon-image": "cat",
-            "icon-size": 0.05,
-          },
-        });
+        map.addSource("point", getSource(temp));
+        map.addLayer(mapLayer);
       }
     };
     map.on("draw.update", (e) => {
@@ -188,7 +99,6 @@ const EditPost = (props) => {
     if (type == 0) {
       map.addControl(draw);
       draw.changeMode("draw_circle", { initialRadiusInKm: 0.5 });
-      // map.on("draw.update", e => {});
     } else {
       map.on("click", (e) => {
         handleClick(map, e.lngLat.lng, e.lngLat.lat);
@@ -197,18 +107,7 @@ const EditPost = (props) => {
   };
   const handleClick = (map, lng, lat) => {
     setLocation([lng, lat]);
-    map.getSource("point").setData({
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [lng, lat],
-          },
-        },
-      ],
-    });
+    map.getSource("point").setData(getHandleClickMapSource(lng, lat));
   };
   var blob = new Blob();
 
@@ -250,8 +149,6 @@ const EditPost = (props) => {
     );
     data.append("Szerokosc_Geograficzna", location[0]);
     data.append("Dlugosc_Geograficzna", location[1]);
-    //data.append("obszar", userInfo.request.radius);
-    //data.append("ilosc_zdjec", tempArray.length);
     data.append("znaki_szczegolne", e.specialInfo);
     var tempLength = 0;
     for (var i = 0; i < files.length; i++) {
@@ -267,7 +164,6 @@ const EditPost = (props) => {
       method: "PUT",
       headers: {
         Accept: "application/json",
-        // 'Content-Type': 'multipart/form-data',
       },
       body: data,
     };
@@ -299,7 +195,6 @@ const EditPost = (props) => {
       return file;
     };
     const fetchData = async () => {
-      //props.hitory.location.params.id
       await axios
         .get(`${userInfo.apiip}/posty/` + props.history.location.params.id)
         .then((res) => {
@@ -334,27 +229,14 @@ const EditPost = (props) => {
       <HeaderText>Edycja posta:</HeaderText>
       {post[0] && (
         <Formik
-          initialValues={{
-            date: moment(post[0].data_time).format("YYYY-MM-D HH:mm:ss"),
-            took: post[0].typ_zgloszenia == 2 ? true : false,
-            type: post[0].typ_zwierzecia || "Pies",
-            content: post[0].tresc || "",
-            size: post[0].wielkosc || "",
-            hairColour: post[0].kolor_siersci || "",
-            specialInfo: post[0].znaki_szczegolne || "",
-            breed: post[0].rasa || "",
-            prize: post[0].nagroda || 0,
-            image1: files[0],
-            image2: files[1],
-            image3: files[2],
-            image4: files[3],
-            request: post[0].typ_zgloszenia,
-            idZwierzecia: post[0].idZwierzecia,
-          }}
+          initialValues={formInitialValues}
           onSubmit={(values) => sendRequest(values)}
           validationSchema={Yup.object().shape({
             date: Yup.date()
-              .min("07/05/2012", "Wprowadzona data jest nieprawidłowa!")
+              .min(
+                moment().subtract(1, "days").endOf("day").toString(),
+                "Wprowadzona data jest nieprawidłowa!"
+              )
               .max(moment().format(), "Wprowadzona data jest nieprawidłowa!!"),
             type: Yup.string(),
             content: Yup.string()
@@ -529,11 +411,6 @@ const EditPost = (props) => {
                         let temp = URL.createObjectURL(e.target.files[0]);
                         let tempArray = files;
                         tempArray[0] = e.target.files[0];
-                        /*
-                    await exifr.parse(temp).then(output => {
-                      setLocation([output.latitude, output.longitude]);
-                    });
-                    */
                         await setFieldValue(
                           "date",
                           e.target.files[0].lastModifiedDate
@@ -622,13 +499,8 @@ const EditPost = (props) => {
                 {location[0] && (
                   <Map
                     style="mapbox://styles/mapbox/streets-v11"
-                    /*containerStyle={{
-                      height: "100vh",
-                      width: "100vw"
-                    }}*/
                     className="usermap"
                     center={[location[1], location[0]]}
-                    /*containerStyle={{ width: 500, height: 400, margin: "auto" }}*/
                     onStyleLoad={(map, e) => {
                       handleMapLoaded(
                         map,
@@ -638,21 +510,7 @@ const EditPost = (props) => {
                         post[0].typ_zgloszenia
                       );
                     }}
-                  >
-                    {/*}onClick={(map, evt) => {
-                  setLocation([evt.lngLat.lat, evt.lngLat.lng]);
-                }}{*/}
-                    {/*}
-                <Marker
-                  coordinates={[
-                    userCircle.longitude || 18.6057,
-                    userCircle.latitude || 53.015331
-                  ]}
-                >
-                  <MapImage src={locationPhoto} />
-                </Marker>
-              {*/}
-                  </Map>
+                  ></Map>
                 )}
               </div>
               {post[0].typ_zgloszenia != 0 && (
