@@ -22,6 +22,11 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import axios from "axios";
 import { NewAppInfo } from "../../context/AppInfo";
 import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import initialSortValues from "./initialSortValues";
+import getDrawOptions from "./getDrawOptions";
+import getSourceData from "./getSourceData";
+import getSource from "./getSource";
+import mapLayer from "./mapLayer";
 const Map = ReactMapboxGl({
   accessToken: "*",
 });
@@ -32,7 +37,6 @@ const FindPosts = (props) => {
   const onGeolocationUpdate = (geolocation) => {
     setLocation([geolocation.longitude, geolocation.latitude]);
   };
-  const geolocation = useGeolocation({}, onGeolocationUpdate);
   const [data, setData] = useState([]);
   const [allHairColour, setAllHairColour] = useState([]);
   const [allBreed, setAllBreed] = useState([]);
@@ -43,26 +47,8 @@ const FindPosts = (props) => {
     global: {},
     location: {},
   });
-  const [sortValues, setSortValues] = useState({
-    filtr_tresc: "%%",
-    filtr_rasa: "%%",
-    filtr_wielkosc: "%%",
-    filtr_kolor_siersci: "%%",
-    filtr_data_zaginiecia_zauwazenia_dol: "20100310 1920",
-    filtr_data_zaginiecia_zauwazenia_gora: "20300319 1920",
-  });
-  const draw = new MapboxDraw({
-    defaultMode: "draw_circle",
-    userProperties: true,
-    initialRadiusInKm: 0.1,
-    modes: {
-      ...MapboxDraw.modes,
-      draw_circle: CircleMode,
-      drag_circle: DragCircleMode,
-      direct_select: DirectMode,
-      simple_select: SimpleSelectMode,
-    },
-  });
+  const [sortValues, setSortValues] = useState(initialSortValues);
+  const draw = getDrawOptions(MapboxDraw);
   var moment = require("moment");
   const handleSortTempValues = (e) => {
     let tempObj = { ...sortTempValues.global };
@@ -102,15 +88,6 @@ const FindPosts = (props) => {
     );
     const handleEvent = () => {
       let drawTemp = draw.getAll();
-      /*
-      console.log(drawTemp.features[0].properties.center[1]);
-      console.log(drawTemp.features[0].properties.center[0]);
-      console.log(drawTemp.features[0].properties.radiusInKm);
-      let temp = userInfo.request;
-      temp.latitude = drawTemp.features[0].properties.center[1];
-      temp.longitude = drawTemp.features[0].properties.center[0];
-      temp.radius = drawTemp.features[0].properties.radiusInKm;
-      */
       setLocation([
         drawTemp.features[0].properties.center[0],
         drawTemp.features[0].properties.center[1],
@@ -123,50 +100,21 @@ const FindPosts = (props) => {
       tempObj.location = tempLocation;
       setSortTempValues({ ...tempObj });
       if (map.getSource("myPoint")) {
-        map.getSource("myPoint").setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [
-                  drawTemp.features[0].properties.center[0],
-                  drawTemp.features[0].properties.center[1],
-                ],
-              },
-            },
-          ],
-        });
+        map.getSource("myPoint").setData(
+          getSourceData({
+            longitude: drawTemp.features[0].properties.center[0],
+            latitude: drawTemp.features[0].properties.center[1],
+          })
+        );
       } else {
-        map.addSource("myPoint", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  //53.015331, 18.6057
-                  coordinates: [
-                    drawTemp.features[0].properties.center[0],
-                    drawTemp.features[0].properties.center[1],
-                  ],
-                },
-              },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "myPoints",
-          type: "symbol",
-          source: "myPoint",
-          layout: {
-            "icon-image": "cat",
-            "icon-size": 0.05,
-          },
-        });
+        map.addSource(
+          "myPoint",
+          getSource({
+            longitude: drawTemp.features[0].properties.center[0],
+            latitude: drawTemp.features[0].properties.center[1],
+          })
+        );
+        map.addLayer(mapLayer);
       }
     };
     map.on("draw.update", (e) => {
@@ -178,14 +126,6 @@ const FindPosts = (props) => {
 
     map.addControl(draw);
     draw.changeMode("draw_circle", { initialRadiusInKm: 0.5 });
-    // map.on("draw.update", e => {});
-
-    /*
-    map.on("click", e => {
-      console.log(e);
-      setInfo({ a: "WWW" });
-    });
-  */
   };
   useEffect(() => {
     const fetchData = async () => {
