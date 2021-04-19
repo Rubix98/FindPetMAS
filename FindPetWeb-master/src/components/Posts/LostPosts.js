@@ -22,9 +22,6 @@ import {
   HeaderCommentsElements,
   PostInfoParagraph,
   CommentContainer,
-  AddCommentContainer,
-  AddCommentButton,
-  TextArea,
   Comment,
   UserLink,
   PostLink,
@@ -32,8 +29,7 @@ import {
   Icon,
   PostImage,
 } from "../../styles/LostPostsStyle";
-import Image from "../../4.jpg";
-import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import ReactMapboxGl from "react-mapbox-gl";
 import { NewAppInfo } from "../../context/AppInfo";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { circle } from "@turf/turf";
@@ -50,13 +46,15 @@ import DeleteIcon from "../../icons/bin_delete.svg";
 import EditIcon from "../../icons/edit.svg";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import { blue } from "@material-ui/core/colors";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Button from "@material-ui/core/Button";
+import getDrawOptions from "./getDrawOptions";
+import getSourceData from "./getSourceData";
+import mapLayer from "./mapLayer";
+import getLayerCircle from "./getLayerCircle";
+import getSourceObject from "./getSourceObject";
 const Map = ReactMapboxGl({
   accessToken: "*",
 });
@@ -78,7 +76,6 @@ const LostPosts = (props) => {
     axios
       .delete(`${userInfo.apiip}/posty/${id}`)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           userInfo.initNotify("Post usunięty pomyślnie");
           setTimeout(redirect, 4000);
@@ -87,7 +84,6 @@ const LostPosts = (props) => {
         }
       })
       .catch((err) => {
-        console.log(err);
         userInfo.initNotify("Wystąpił błąd");
       });
   };
@@ -110,18 +106,7 @@ const LostPosts = (props) => {
   const [allHairColour, setAllHairColour] = useState([]);
   const [allBreed, setAllBreed] = useState([]);
   const userInfo = useContext(NewAppInfo);
-  const draw = new MapboxDraw({
-    defaultMode: "draw_circle",
-    userProperties: true,
-    initialRadiusInKm: 0.1,
-    modes: {
-      ...MapboxDraw.modes,
-      draw_circle: CircleMode,
-      drag_circle: DragCircleMode,
-      direct_select: DirectMode,
-      simple_select: SimpleSelectMode,
-    },
-  });
+  const draw = getDrawOptions(MapboxDraw);
 
   const handleMapLoaded = (map) => {
     map.loadImage(
@@ -133,15 +118,6 @@ const LostPosts = (props) => {
     );
     const handleEvent = () => {
       let drawTemp = draw.getAll();
-      /*
-      console.log(drawTemp.features[0].properties.center[1]);
-      console.log(drawTemp.features[0].properties.center[0]);
-      console.log(drawTemp.features[0].properties.radiusInKm);
-      let temp = userInfo.request;
-      temp.latitude = drawTemp.features[0].properties.center[1];
-      temp.longitude = drawTemp.features[0].properties.center[0];
-      temp.radius = drawTemp.features[0].properties.radiusInKm;
-      */
       setLocation([
         drawTemp.features[0].properties.center[0],
         drawTemp.features[0].properties.center[1],
@@ -170,34 +146,14 @@ const LostPosts = (props) => {
           ],
         });
       } else {
-        map.addSource("point", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  //53.015331, 18.6057
-                  coordinates: [
-                    drawTemp.features[0].properties.center[0],
-                    drawTemp.features[0].properties.center[1],
-                  ],
-                },
-              },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "points",
-          type: "symbol",
-          source: "point",
-          layout: {
-            "icon-image": "cat",
-            "icon-size": 0.05,
-          },
-        });
+        map.addSource(
+          "point",
+          getSourceData({
+            longitude: drawTemp.features[0].properties.center[0],
+            latitude: drawTemp.features[0].properties.center[1],
+          })
+        );
+        map.addLayer(mapLayer);
       }
     };
     map.on("draw.update", (e) => {
@@ -209,19 +165,8 @@ const LostPosts = (props) => {
 
     map.addControl(draw);
     draw.changeMode("draw_circle", { initialRadiusInKm: 0.5 });
-    // map.on("draw.update", e => {});
-    console.log(draw.getAll());
-    /*
-    map.on("click", e => {
-      console.log(e);
-      setInfo({ a: "WWW" });
-    });
-  */
   };
   const handleLostMapLoaded = (map, lng, lat, rad) => {
-    console.log(lng);
-    console.log(lat);
-    console.log(rad);
     map.loadImage(
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png",
       function (error, image) {
@@ -234,60 +179,12 @@ const LostPosts = (props) => {
         steps: 80,
         units: "kilometers",
       });
-      map.addLayer({
-        id: "circle-fill",
-        type: "fill",
-        source: {
-          type: "geojson",
-          data: myCircle,
-        },
-        paint: {
-          "fill-color": "#33691E",
-          "fill-opacity": 0.5,
-        },
-      });
+      map.addLayer(getLayerCircle(myCircle));
     }
-    map.addSource("point", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              //53.015331, 18.6057
-              coordinates: [lng, lat],
-            },
-          },
-        ],
-      },
-    });
-    map.addLayer({
-      id: "points",
-      type: "symbol",
-      source: "point",
-      layout: {
-        "icon-image": "cat",
-        "icon-size": 0.05,
-      },
-    });
+    map.addSource("point", getSourceObject(lng, lat));
+    map.addLayer(mapLayer);
     if (rad > 0) {
-      map.addLayer({
-        id: "circle-outline",
-        type: "line",
-        source: {
-          type: "geojson",
-          data: circle,
-        },
-        paint: {
-          "line-color": "#1B5E20",
-          "line-opacity": 0.5,
-          "line-width": 1,
-          "line-offset": 5,
-        },
-        layout: {},
-      });
+      map.addLayer(getLayerCircle(circle));
     }
   };
   const handleSortTempValues = (e) => {
@@ -315,18 +212,13 @@ const LostPosts = (props) => {
     newTemp.latitude = temp.location.latitude;
     newTemp.longitude = temp.location.longitude;
     newTemp.radius = temp.location.radius;
-    console.log(newTemp);
-    console.log("|||||||||||");
     setSortValues({ ...newTemp });
   };
   useEffect(() => {
     if (props.coords) {
       setLocation([props.coords.longitude, props.coords.latitude]);
     }
-    console.log("Witaj");
     const fetchData = async () => {
-      console.log(sortValues);
-      console.log("cccccccccccc");
       await axios
         .get(`${userInfo.apiip}/rasy`)
         .then((res) => {
@@ -346,7 +238,6 @@ const LostPosts = (props) => {
       await axios
         .post(`${userInfo.apiip}/postyzkomentarzami/0`, sortValues)
         .then((res) => {
-          console.log(res.data);
           setData([...res.data]);
         })
         .catch((err) => {
@@ -355,9 +246,7 @@ const LostPosts = (props) => {
     };
     fetchData();
   }, [props.coords, sortValues]);
-  const tempLongitude = 53.015331;
-  const tempLatitude = 18.6057;
-  const tempRad = 0.01;
+
   let posts = data.map((date) => {
     return (
       <div style={{ margin: "8% 0 0 0", position: "relative" }}>
@@ -426,11 +315,6 @@ const LostPosts = (props) => {
               />
             );
           })}
-          {/*}
-          <img src={Image} style={{ width: 250 }} />
-          <img src={Image} style={{ width: 250 }} />
-          <img src={Image} style={{ width: 250 }} />
-          {*/}
         </ImagesContainer>
         <TextPostMinHeader>Lokalizacja:</TextPostMinHeader>
         <Map
@@ -451,7 +335,6 @@ const LostPosts = (props) => {
           }}
         />
         <CommentsContainer>
-          {" "}
           {date.idUżytkownik == userInfo.user.idUżytkownik && (
             <div>
               <UserActionsContainer>
@@ -545,13 +428,6 @@ const LostPosts = (props) => {
                       }
                     })}
                   </ImagesContainer>
-                  {/*}
-            <img src={Image} style={{ width: 200 }} />
-            <img src={Image} style={{ width: 200 }} />
-            <img src={Image} style={{ width: 200 }} />
-            <img src={Image} style={{ width: 200 }} />
-          {*/}
-
                   <MapContainer>
                     <HeaderCommentsElements>
                       Lokalizacja:

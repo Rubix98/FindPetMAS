@@ -1,15 +1,6 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import React, { useState, useContext, useRef } from "react";
+import ReactMapboxGl from "react-mapbox-gl";
 import {
-  Container,
-  SortPageButton,
-  SortContainer,
-  SortRow,
-  SortLabel,
-  SortLabelLocation,
-  SortSelect,
-  SortInput,
-  SortButton,
   PostTextHeader,
   PostInfoContainer,
   PostRow,
@@ -23,9 +14,6 @@ import {
   HeaderCommentsElements,
   PostInfoParagraph,
   CommentContainer,
-  AddCommentContainer,
-  AddCommentButton,
-  TextArea,
   Comment,
   UserLink,
   PostLink,
@@ -39,9 +27,6 @@ import DeleteIcon from "../../icons/bin_delete.svg";
 import EditIcon from "../../icons/edit.svg";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import { blue } from "@material-ui/core/colors";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
@@ -49,8 +34,10 @@ import Button from "@material-ui/core/Button";
 import Img from "react-image";
 import { circle } from "@turf/turf";
 import axios from "axios";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "../../App.css";
+import getLayerCircle from "./getLayerCircle";
+import getSourceObject from "./getSourceObject";
+import getLayerIndex from "./getLayerIndex";
 const Map = ReactMapboxGl({
   accessToken: "*",
 });
@@ -67,65 +54,15 @@ const handleLostMapLoaded = (map, lng, lat, rad, index) => {
       steps: 80,
       units: "kilometers",
     });
-    map.addLayer({
-      id: "circle-fill",
-      type: "fill",
-      source: {
-        type: "geojson",
-        data: myCircle,
-      },
-      paint: {
-        "fill-color": "#33691E",
-        "fill-opacity": 0.5,
-      },
-    });
+    map.addLayer(getLayerCircle(myCircle));
   }
-  map.addSource(`${index}point`, {
-    type: "geojson",
-    data: {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            //53.015331, 18.6057
-            coordinates: [lng, lat],
-          },
-        },
-      ],
-    },
-  });
-  map.addLayer({
-    id: `${index}points`,
-    type: "symbol",
-    source: `${index}point`,
-    layout: {
-      "icon-image": "cat",
-      "icon-size": 0.05,
-    },
-  });
+  map.addSource(`${index}point`, getSourceObject(lng, lat));
+  map.addLayer(getLayerIndex(index));
   if (rad > 0) {
-    map.addLayer({
-      id: "circle-outline",
-      type: "line",
-      source: {
-        type: "geojson",
-        data: circle,
-      },
-      paint: {
-        "line-color": "#1B5E20",
-        "line-opacity": 0.5,
-        "line-width": 1,
-        "line-offset": 5,
-      },
-      layout: {},
-    });
+    map.addLayer(getLayerCircle(circle));
   }
 };
 const FindPost = (props) => {
-  const [test, setTest] = useState(props.data);
-  const MapContainerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const deletePost = (id) => {
     handleClose();
@@ -229,11 +166,6 @@ const FindPost = (props) => {
             />
           );
         })}
-        {/*}
-    <img src={Image} style={{ width: 250 }} />
-    <img src={Image} style={{ width: 250 }} />
-    <img src={Image} style={{ width: 250 }} />
-    {*/}
       </ImagesContainer>
       <TextPostMinHeader>Lokalizacja:</TextPostMinHeader>
       <div id={`post${props.data.idPosty}`}>
@@ -256,7 +188,7 @@ const FindPost = (props) => {
             );
           }}
         />
-      </div>{" "}
+      </div>
       <CommentsContainer>
         <HeaderCommentsText>Komentarze:</HeaderCommentsText>
         {props.data.komentarze.map((comment, index) => {
@@ -345,7 +277,6 @@ const FindPost = (props) => {
           </PostLink>
         </CommentContainer>
       </CommentsContainer>
-      {console.log(`${props.data.idPosty}`)}
       {props.data &&
         userInfo.user &&
         props.data.idUżytkownik == userInfo.user.idUżytkownik && (

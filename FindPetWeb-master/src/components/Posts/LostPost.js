@@ -23,21 +23,22 @@ import {
   HeaderContainer,
 } from "../../styles/LostPostStyle";
 import { UserActionsContainer, Icon } from "../../styles/LostPostsStyle";
-import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+import ReactMapboxGl from "react-mapbox-gl";
 import { circle } from "@turf/turf";
 import DeleteIcon from "../../icons/bin_delete.svg";
 import EditIcon from "../../icons/edit.svg";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import { blue } from "@material-ui/core/colors";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import "../../styles/UserMap.css";
+import mapLayer from "./mapLayer";
+import getSourceObject from "./getSourceObject";
+import getLayerCircle from "./getLayerCircle";
+import circleLayer from "./circleLayer";
 const Map = ReactMapboxGl({
   accessToken: "*",
 });
@@ -57,60 +58,12 @@ const handleMapLoaded = (map, lng, lat, rad) => {
       steps: 80,
       units: "kilometers",
     });
-    map.addLayer({
-      id: "circle-fill",
-      type: "fill",
-      source: {
-        type: "geojson",
-        data: myCircle,
-      },
-      paint: {
-        "fill-color": "#33691E",
-        "fill-opacity": 0.5,
-      },
-    });
+    map.addLayer(getLayerCircle(myCircle));
   }
-  map.addSource("point", {
-    type: "geojson",
-    data: {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            //53.015331, 18.6057
-            coordinates: [lng, lat],
-          },
-        },
-      ],
-    },
-  });
-  map.addLayer({
-    id: "points",
-    type: "symbol",
-    source: "point",
-    layout: {
-      "icon-image": "cat",
-      "icon-size": 0.05,
-    },
-  });
+  map.addSource("point", getSourceObject(lng, lat));
+  map.addLayer(mapLayer);
   if (rad > 0) {
-    map.addLayer({
-      id: "circle-outline",
-      type: "line",
-      source: {
-        type: "geojson",
-        data: circle,
-      },
-      paint: {
-        "line-color": "#1B5E20",
-        "line-opacity": 0.5,
-        "line-width": 1,
-        "line-offset": 5,
-      },
-      layout: {},
-    });
+    map.addLayer(circleLayer);
   }
 };
 const LostPost = (props) => {
@@ -254,7 +207,6 @@ const LostPost = (props) => {
                 data[0].Dlugosc_Geograficzna,
                 data[0].Szerokosc_Geograficzna,
               ]}
-              /*containerStyle={{ width: 300, height: 200, margin: "auto" }}*/
               onStyleLoad={(map, e) => {
                 handleMapLoaded(
                   map,
@@ -374,8 +326,7 @@ const LostPost = (props) => {
                       comment.Dlugosc_Geograficzna,
                       comment.Szerokosc_Geograficzna,
                     ]}
-                    /*containerStyle={{ width: 200, height: 150, margin: "auto" }}
-                     */ onStyleLoad={(map, e) => {
+                    onStyleLoad={(map, e) => {
                       handleMapLoaded(
                         map,
                         comment.Dlugosc_Geograficzna,
