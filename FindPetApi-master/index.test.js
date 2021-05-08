@@ -32,6 +32,17 @@ const locationObject = {
   Posty_idPosty: 6,
 };
 
+const animalObject = {
+  idZwierzecia: 2,
+  typ_zgloszenia: "0",
+  typ_zwierzecia: "pies",
+  rasa: "husky",
+  wielkosc: "duzy",
+  kolor_siersci: "czarny",
+  znaki_szczegolowe: "obroza",
+  nagroda: 200,
+};
+
 const setUser = (val) => {
   if (
     val.idUżytkownik &&
@@ -129,6 +140,41 @@ const setLocation = (val) => {
   }
 };
 
+const setAnimal = (val) => {
+  x = parseInt(val.typ_zgloszenia);
+  if (
+    val.idZwierzecia &&
+    val.typ_zgloszenia &&
+    val.typ_zwierzecia &&
+    val.rasa &&
+    val.wielkosc &&
+    val.kolor_siersci &&
+    val.znaki_szczegolowe &&
+    val.nagroda
+  ) {
+    if (
+      val.idZwierzecia >= 0 &&
+      (x == 0 || x == 1 || x == 2) &&
+      (val.typ_zwierzecia == "pies" ||
+        val.typ_zwierzecia == "kot" ||
+        val.typ_zwierzecia == "inne") &&
+      val.rasa.length > 3 &&
+      (val.wielkosc == "duzy" ||
+        val.wielkosc == "sredni" ||
+        val.wielkosc == "maly") &&
+      val.kolor_siersci.length > 3 &&
+      val.znaki_szczegolowe.length > 3 &&
+      val.nagroda > 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
 test("user object test", () => {
   expect(setUser(userObject)).toBe(true);
 });
@@ -143,4 +189,8 @@ test("image object test", () => {
 
 test("location object test", () => {
   expect(setLocation(locationObject)).toBe(true);
+});
+
+test("animal object test", () => {
+  expect(setAnimal(animalObject)).toBe(true);
 });
