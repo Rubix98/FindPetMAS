@@ -18,6 +18,12 @@ const postObject = {
   data_time: "2021-03-21T10:00:00.000Z",
 };
 
+const imageObject = {
+  idZdjecia: 1,
+  zdjecie: "/uploads/0d37b4c224a0cfcc4e89499e7dfc1487014b.jpg",
+  Posty_idPosty: 4,
+};
+
 const setUser = (val) => {
   if (
     val.idUżytkownik &&
@@ -72,10 +78,31 @@ const setPost = (val) => {
   }
 };
 
+const setImage = (val) => {
+  if (val.idZdjecia && val.zdjecie && val.Posty_idPosty) {
+    if (
+      val.idZdjecia >= 0 &&
+      val.zdjecie.startsWith("/uploads/") &&
+      val.zdjecie.endsWith(".jpg") &&
+      val.Posty_idPosty >= 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
 test("user object test", () => {
   expect(setUser(userObject)).toBe(true);
 });
 
 test("post object test", () => {
   expect(setPost(postObject)).toBe(true);
+});
+
+test("image object test", () => {
+  expect(setImage(imageObject)).toBe(true);
 });
