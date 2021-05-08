@@ -24,6 +24,14 @@ const imageObject = {
   Posty_idPosty: 4,
 };
 
+const locationObject = {
+  idLokalizacja: 3,
+  latitude: 53.0117,
+  longtitude: 18.5872,
+  obszar: 0,
+  Posty_idPosty: 6,
+};
+
 const setUser = (val) => {
   if (
     val.idUżytkownik &&
@@ -95,6 +103,32 @@ const setImage = (val) => {
   }
 };
 
+const setLocation = (val) => {
+  if (
+    val.idLokalizacja &&
+    val.latitude &&
+    val.longtitude &&
+    Number.isInteger(val.obszar) &&
+    val.Posty_idPosty
+  ) {
+    if (
+      val.idLokalizacja >= 0 &&
+      val.latitude >= 0 &&
+      val.latitude <= 90 &&
+      val.longtitude >= 0 &&
+      val.longtitude <= 360 &&
+      val.obszar >= 0 &&
+      val.Posty_idPosty >= 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
 test("user object test", () => {
   expect(setUser(userObject)).toBe(true);
 });
@@ -105,4 +139,8 @@ test("post object test", () => {
 
 test("image object test", () => {
   expect(setImage(imageObject)).toBe(true);
+});
+
+test("location object test", () => {
+  expect(setLocation(locationObject)).toBe(true);
 });
